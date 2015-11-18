@@ -50,7 +50,7 @@ function relocate() {
   geolocation.setTracking(true); // here the browser may ask for confirmation
   geolocation.once('change:position', function(evt) {
     geolocation.setTracking(false);
-    map.getView().fit(geolocation.getPosition(), map.getSize(), { nearest: true, Zoom: 13 });
+    map.getView().fit(geolocation.getAccuracyGeometry(), map.getSize(), { nearest: true, Zoom: 13 });
     marker.setGeometry(new ol.geom.Point(map.getView().getCenter()));
     console.log("Accuracy of Geometry: " + geolocation.getAccuracy() + " meters");     
     
