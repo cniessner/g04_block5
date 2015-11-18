@@ -1,47 +1,106 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
 <head>
+
+
 <title>Karte mit Nomination</title>
 <link rel="stylesheet" href="http://openlayers.org/en/v3.11.0/css/ol.css" type="text/css">
 <script src="http://openlayers.org/en/v3.11.0/build/ol.js"></script>
 
+<link rel="stylesheet" href="../css/bootstrap.css">
+<link rel="stylesheet" href="./stylesheet_hue_3.css"
+
 </head>
 <body>
+
+  <div class="nav">
+       <div class="container">
+         <ul class="pull-left">
+           <li><a href="../home.html">Home</a></li>
+           <li><a href="../team/msite.html">Gruppe 4</a></li>
+           <li><a href="#">Projekte</a></li>
+           <li><a href="#">Erreichbarkeitsanalyse</a></li>
+         </ul>
+         <ul class="pull-right">
+
+           <li><a href="#">Intranet</a></li>
+           <li><a href="#">Impressum</a></li>
+         </ul>
+       </div>
+     </div>
+    <div id="ueberschrift"> <h2>Karte mit Nomination</h2>
+     </div>
+
+ <div class="row mapcontent">
+ <div class="col-md-8 pull-left">
+ <div class="left">
+
+<div id="map"></div>
+
+</div>
+</div>
+
+<div class="col-md-4 pull-right">
+ <div class="right">
+&Uuml;ber den "Search"-Button lassen sich Orte suchen. Mit "Reset location" kommt man wieder zum eigenen Standort zur&uuml;ck.<p></p>
   <form id="searchform">
-    <input name="search" size="80" type="text" placeholder="Search, e.g. 'Vienna', 'Karlsplatz 13, Wien'">
+    <input name="search" size="80" type="text" placeholder="Search, e.g. 'Vienna', 'Karlsplatz 13, Wien'"><p></p>
     <input type="submit" value="Search">
   </form>
+<br>
+  <form id="relocate">
+ 	<input type="button" name="Location" value="Reset location" onclick="JavaScript:relocate();">
+  </form>
 
-    <div id="map" class="map"></div>
 </div>
+</div>
+</div>
+
+
 <script>
+var marker = new ol.Feature();
 var map = new ol.Map({
-  layers: [
-    new ol.layer.Tile({
-      source: new ol.source.OSM()
-    })
-  ],
-  controls: ol.control.defaults({
-    attributionOptions: /** @type {olx.control.AttributionOptions} */ ({
-      collapsible: false
-    })
-  }),
-  target: 'map',
-  view: new ol.View({
-    center: [0, 0],
-    zoom: 13
-  })
+target: 'map',
+layers: [
+new ol.layer.Tile({
+source: new ol.source.OSM
+}),
+new ol.layer.Vector({
+	source: new ol.source.Vector({
+		features: [marker]
+	}),
+
+    style: new ol.style.Style ({
+    image: new ol.style.Icon(({
+        anchor: [0.5, 46],
+        anchorXUnits: 'fraction',
+        anchorYUnits: 'pixels',
+        opacity: 0.75,
+        src: 'http://student.ifip.tuwien.ac.at/geoweb/2015/g04/homepage/ue3_hoc/alt/marker_rot_sized.png'
+              }))
+        })
+})
+],
+view: new ol.View({
+center: ol.proj.transform([16.373, 48.208], 'EPSG:4326', 'EPSG:3857'),
+zoom: 13,
+
+})
 });
 
-var geolocation = new ol.Geolocation({
-  projection: map.getView().getProjection(),
-  tracking: true
-});
-geolocation.once('change:position', function(evt) {
-  map.getView().setCenter(geolocation.getPosition());
-  /**openlayers.org: ol.view fit; map.getSize(); getAccuracyGeometry(); getExtent();
-  nominatim OSM: boundingbox als Extent (Achtung Projektionen sind nicht gleich); transformExtent (für Extent in die Zielprojektion); getProjection*/
-});
+function relocate() {
+  var geolocation = new ol.Geolocation({projection: 'EPSG:3857'});
+  geolocation.setTracking(true); // here the browser may ask for confirmation
+  geolocation.once('change:position', function(evt) {
+    geolocation.setTracking(false);
+    map.getView().setCenter(geolocation.getPosition(), map.getSize(), { nearest: true, Zoom: 13 });
+    marker.setGeometry(new ol.geom.Point(map.getView().getCenter()));
+    console.log("Accuracy of Geometry: " + geolocation.getAccuracy() + " meters");
+
+  });
+}
+relocate();
+
 
 var form = document.getElementById('searchform');
 form.onsubmit = function(evt) {
@@ -58,17 +117,14 @@ form.onsubmit = function(evt) {
       map.getView().setCenter(ol.proj.fromLonLat([
         parseFloat(first.lon),
         parseFloat(first.lat)
+
+
       ]));
     }
   };
   xhr.send();
+   console.log(result);
 };
-
-
-
-
-
-
 
 </script>
 </body>
