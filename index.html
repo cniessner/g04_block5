@@ -48,7 +48,7 @@ zoom: 13,
 function relocate() {
   var geolocation = new ol.Geolocation({projection: 'EPSG:3857'});
   geolocation.setTracking(true); // here the browser may ask for confirmation
-  geolocation.once('change:position', function(evt) {
+  geolocation.once('change:accuracyGeometry', function(evt) {
     geolocation.setTracking(false);
     map.getView().fit(geolocation.getAccuracyGeometry(), map.getSize(), { nearest: true, Zoom: 13 });
     marker.setGeometry(new ol.geom.Point(map.getView().getCenter()));
