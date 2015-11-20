@@ -76,6 +76,7 @@ new ol.layer.Vector({
         anchorXUnits: 'fraction',
         anchorYUnits: 'pixels',
         opacity: 0.75,
+        /**scale: 0,5,**/
         src: 'http://student.ifip.tuwien.ac.at/geoweb/2015/g04/homepage/ue3_hoc/marker_rot_sized.png'
               }))
         })
@@ -84,18 +85,18 @@ new ol.layer.Vector({
 view: new ol.View({
 center: ol.proj.transform([16.373, 48.208], 'EPSG:4326', 'EPSG:3857'),
 zoom: 13,
-
+maxZoom: 19
 })
 });
 
 function relocate() {
   var geolocation = new ol.Geolocation({projection: 'EPSG:3857'});
   geolocation.setTracking(true); // here the browser may ask for confirmation
-  geolocation.once('change:position', function(evt) {
+  geolocation.once('change:accuracyGeometry', function(evt) {
     geolocation.setTracking(false);
-    map.getView().setCenter(geolocation.getPosition(), map.getSize(), { nearest: true, Zoom: 13 });
+    map.getView().fit(geolocation.getAccuracyGeometry(), map.getSize(), { nearest: true, maxZoom: 13 });
     marker.setGeometry(new ol.geom.Point(map.getView().getCenter()));
-    console.log("Accuracy of Geometry: " + geolocation.getAccuracy() + " meters");
+    console.log("Accuracy of Geometry: " + geolocation.getAccuracy() + " meters"); 
 
   });
 }
@@ -115,11 +116,10 @@ form.onsubmit = function(evt) {
       var first = result[0];
       form.search.value = first.display_name;
       map.getView().setCenter(ol.proj.fromLonLat([
-        parseFloat(first.lon),
-        parseFloat(first.lat),
-
+          parseFloat(first.lon),
+          parseFloat(first.lat), 
       ]));
-      marker.setGeometry(new ol.geom.Point(map.getView().getCenter())); 
+        marker.setGeometry(new ol.geom.Point(map.getView().getCenter()));
     }
   };
   xhr.send();
